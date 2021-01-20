@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"ReefDB/models"
+	"ReefDB-API/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
