@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	_ "github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"net/http"
 	"time"
@@ -31,22 +32,39 @@ func AddNewParameter(c *gin.Context) {
 	}
 }
 
-func GetParameter(c *gin.Context) {
-
+func GetParameter(id int) (*Parameter, bool) {
+	var parameter []Parameter
+	parameter = GetAllParameter()
+	return findParameter(parameter, id)
 }
 
-func GetAllParameter(c *gin.Context) {
+func findParameter(parameter []Parameter, id int) (*Parameter, bool) {
+	for _, v := range parameter {
+		if v.Id == id {
+			return &v, true
+		}
+	}
+	return nil, false
+}
+
+func GetAllParameter() []Parameter {
 	db, err := sql.Open("sqlite3", "./ReefDB.db")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		fmt.Printf("DB: %v\n", err)
 	}
-	sql := "SELECT * FROM parameter"
+	sql := "SELECT id,name,unit,formula,optimal_min,optimal_max,min,max,created,updated,enabled FROM parameter"
 	rows, err := db.Query(sql)
-	fmt.Println(rows)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+		fmt.Printf("Query: %v\n", err)
 	}
-	c.JSON(http.StatusOK, rows)
+	var got []Parameter
+	for rows.Next() {
+		var p Parameter
+		rows.Scan(&p.Id, &p.Name, &p.Unit, &p.Formula, &p.OptimumMin, &p.OptimumMax, &p.Min, &p.Max, &p.Created, &p.Updated, &p.Enabled)
+		if err != nil {
+			fmt.Printf("Scan: %v\n", err)
+		}
+		got = append(got, p)
+	}
+	return got
 }

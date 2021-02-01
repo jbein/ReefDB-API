@@ -1,7 +1,6 @@
 package main
 
 import (
-	"ReefDB-API/models"
 	"ReefDB-API/routes"
 	"context"
 	"fmt"
@@ -26,7 +25,9 @@ func main() {
 	}
 	parameterGroup := router.Group("parameter")
 	{
-		parameterGroup.GET("", models.GetAllParameter)
+		parameterGroup.GET("", routes.ParameterShowAll)
+		parameterGroup.GET(":id", routes.ParameterShow)
+
 	}
 	_ = router.Run(":3000")
 }
