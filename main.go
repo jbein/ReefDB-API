@@ -1,35 +1,42 @@
 package main
 
 import (
-	"ReefDB-API/routes"
+	"ReefDB-API/controllers"
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/gin-gonic/gin"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api/write"
+	"github.com/jmoiron/sqlx"
 )
 
 func main() {
+	db, err := sqlx.Open("sqlite3", "./ReefDB.db")
+	if err != nil {
+		fmt.Printf("DB: %v\n", err)
+	}
+
 	//migrations.CreateDB()
 
 	router := gin.Default()
 	tankGroup := router.Group("tank")
 	{
-		tankGroup.GET(":id", routes.TankShow)
-		tankGroup.POST("", routes.TankAdd)
-	}
-	tanksGroup := router.Group("tanks")
-	{
-		tanksGroup.GET("", routes.TankShowAll)
+		th := controllers.NewTankHandler(db)
+		tankGroup.GET(":id", th.GetTank)
+		tankGroup.GET("", th.GetTankAll)
+		tankGroup.POST("", th.PostTank)
 	}
 	parameterGroup := router.Group("parameter")
 	{
-		parameterGroup.GET("", routes.ParameterShowAll)
-		parameterGroup.GET(":id", routes.ParameterShow)
+		ph := controllers.NewParameterHandler(db)
+		parameterGroup.GET("", ph.GetParameterAll)
+		parameterGroup.GET(":id", ph.GetParameter)
+		parameterGroup.POST("", ph.PostParameter)
 
 	}
 	_ = router.Run(":3000")
+
 }
 
 func WriteToIFX(p *write.Point) (err error) {

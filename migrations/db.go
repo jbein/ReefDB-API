@@ -42,24 +42,24 @@ func CreateTableParameter(db *sql.DB) {
 }
 
 func InsertParameter(db *sql.DB) {
-	sql := "INSERT INTO parameter (name,unit,formula,optimal_min,optimal_max,min,max) VALUES (?, ?, ?, ?, ?, ?, ?)"
+	sqlStmt := "INSERT INTO parameter (name,unit,formula,optimal_min,optimal_max,min,max) VALUES (?, ?, ?, ?, ?, ?, ?)"
 	tx, err := db.Begin()
 	if err != nil {
 		log.Panic(err)
 	}
-	stmt, err := tx.Prepare(sql)
+	stmt, err := tx.Prepare(sqlStmt)
 	if err != nil {
 		log.Panic(err)
 	}
 	defer stmt.Close()
-	stmt.Exec("Nitrate", "mg/l", "NO3", 2, 10, 0, 20)
-	stmt.Exec("Phosphate", "mg/l", "PO4", 0.01, 0.1, 0, 0.2)
-	stmt.Exec("Calcium", "mg/l", "Ca", 400, 450, 360, 480)
-	stmt.Exec("Magnesium", "mg/l", "Mg", 1280, 1350, 1100, 1400)
-	stmt.Exec("Alkalinity", "°dH", "", 6.8, 8.5, 5, 20)
-	stmt.Exec("Salinity", "g/cm3", "", 1.0233, 1.0233, 1.021, 1.024)
-	stmt.Exec("Temperature", "°dH", "", 24, 26, 23.5, 28.3)
-	tx.Commit()
+	_, _ = stmt.Exec("Nitrate", "mg/l", "NO3", 2, 10, 0, 20)
+	_, _ = stmt.Exec("Phosphate", "mg/l", "PO4", 0.01, 0.1, 0, 0.2)
+	_, _ = stmt.Exec("Calcium", "mg/l", "Ca", 400, 450, 360, 480)
+	_, _ = stmt.Exec("Magnesium", "mg/l", "Mg", 1280, 1350, 1100, 1400)
+	_, _ = stmt.Exec("Alkalinity", "°dH", "", 6.8, 8.5, 5, 20)
+	_, _ = stmt.Exec("Salinity", "g/cm3", "", 1.0233, 1.0233, 1.021, 1.024)
+	_, _ = stmt.Exec("Temperature", "°dH", "", 24, 26, 23.5, 28.3)
+	_ = tx.Commit()
 }
 
 func CreateTableTanks(db *sql.DB) {
